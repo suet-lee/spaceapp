@@ -53,26 +53,7 @@ function moveObject(object, step) {
   let x_diff = px - ox;
   let y_diff = py - oy;
   let r = Math.sqrt(x_diff*x_diff+y_diff*y_diff);
-
-  let t = Math.atan(Math.abs(y_diff/x_diff));
-
-  if (x_diff == 0 && y_diff >= 0) {
-      t *= -1;
-      console.log('x0, y>0', t)
-  } else if (x_diff == 0 && y_diff < 0) {
-      t *= -1;
-      console.log('x0, y<0', t)
-  } else if (y_diff == 0 && x_diff >= 0) {
-      t *= -1;
-      console.log('y0, x>0', t)
-  } else if (y_diff == 0 && x_diff < 0) {
-      t *= -1;
-      console.log('y0, x<0', t)
-  }
-  t0 = Math.atan(0)
-  t1 = Math.atan(1/0)
-  consol
-  console.log()
+  let t = Math.atan2(y_diff, x_diff);
   let a = w + t;
 
   object.pos.x = px - r*Math.cos(a);
@@ -102,6 +83,21 @@ function CelestialObject(type, size, pos, attribs) {
         );
         ctx.fill();
     }
+    // this.move = function
+    if (type in planets) {
+      let planet = planets[type];
+      this.attribs.atmosphere = new Atmosphere(planet['gasRatio']);
+      this.attribs.core = new Core(
+        planet.core.metallic,
+        planet.core.rocky,
+        planet.core.molten
+      );
+      if (planet.water == undefined) {
+          this.attribs.water = Math.random();
+      } else {
+          this.attribs.water = planet.water;
+      }
+    }
 }
 
 function getRandomArbitrary(min, max) {
@@ -110,9 +106,9 @@ function getRandomArbitrary(min, max) {
 
 /* gasRatio entries should be between 0 - 1 */
 /* eg. {'carbon': 0.2, 'oxygen': 0.1} */
-function Atmosphere(thickness = 0, gasRatio) {
+function Atmosphere(gasRatio) {
     let self = this;
-    self.thickness = thickness;
+    self.thickness = Math.random();
     let gases = ['carbon', 'nitrogen', 'oxygen', 'co2', 'methane', 'ozone', 'hydrogen', 'helium'];
     let equalSplit = [];
     let total = 0;
@@ -150,7 +146,7 @@ let universe = new Universe();
 let planets = {
   'carbon': {
     'gasRatio': {'carbon': 0.2, 'oxygen': 0.2, 'co2': 0.4},
-    'core': {'metallic': true}
+    'core': {'metallic': true},
   },
   'gas': {
     'gasRatio': {'hydrogen': 0.4, 'helium': 0.4},
@@ -160,10 +156,12 @@ let planets = {
     'gasRatio': {'helium': 0.8, 'co2': 0.1}
   },
   'terrestrial': {
-
+    'gasRatio': {'hydrogen': 0.4, 'helium': 0.4},
+    'core': {'metallic': true},
+    'water': 0.8
   },
   'ocean': {
-
+    'water': 1
   }
 };
 
@@ -183,9 +181,7 @@ let sun = new CelestialObject("star", 20, { x: canvas.width / 2, y: canvas.heigh
 
 universe.addObject(sun);
 
-universe.addObject(new CelestialObject("planet", 3, {x: canvas.width / 3, y:canvas.height / 2}, { color: "cyan", parent: sun, w: 0.01,
-  atmosphere: new Atmosphere(planets.carbon.thickness, planets.carbon.gasRatio), core: new Core(false, false, true)
-}));
+universe.addObject(new CelestialObject("carbon", 3, {x: canvas.width / 3, y:canvas.height / 2}, { color: "cyan", parent: sun, w: 0.01}));
 
 // universe.addObject(new CelestialObject("planet", 3, {x: canvas.width / 3, y:canvas.height / 2}, { color: "cyan", parent: sun, w: Math.PI/4 }));
 
