@@ -50,13 +50,13 @@ function moveObject(object, step) {
   let ox = object.pos.x;
   let oy = object.pos.y;
 
-  let x_diff = ox - px;
-  let y_diff = oy - py;
+  let x_diff = px - ox;
+  let y_diff = py - oy;
   let r = Math.sqrt(x_diff*x_diff+y_diff*y_diff);
-  let t = Math.atan(y_diff/x_diff);
-  let a = w + t
+  let t = Math.atan2(y_diff, x_diff);
+  let a = w + t;
 
-  object.pos.x = px - r*Math.sin(a);
+  object.pos.x = px - r*Math.cos(a);
   object.pos.y = py - r*Math.sin(a);
 }
 
@@ -83,9 +83,88 @@ function CelestialObject(type, size, pos, attribs) {
         );
         ctx.fill();
     }
+    // this.move = function
+    if (type in planets) {
+      let planet = planets[type];
+      this.attribs.atmosphere = new Atmosphere(planet['gasRatio']);
+      this.attribs.core = new Core(
+        planet.core.metallic,
+        planet.core.rocky,
+        planet.core.molten
+      );
+      if (planet.water == undefined) {
+          this.attribs.water = Math.random();
+      } else {
+          this.attribs.water = planet.water;
+      }
+    }
+}
+
+function getRandomArbitrary(min, max) {
+    return Math.random() * (max - min) + min;
+}
+
+/* gasRatio entries should be between 0 - 1 */
+/* eg. {'carbon': 0.2, 'oxygen': 0.1} */
+function Atmosphere(gasRatio) {
+    let self = this;
+    self.thickness = Math.random();
+    let gases = ['carbon', 'nitrogen', 'oxygen', 'co2', 'methane', 'ozone', 'hydrogen', 'helium'];
+    let equalSplit = [];
+    let total = 0;
+    gases.forEach(function(gas, idx) {
+        if (gas in gasRatio) {
+            self[gas] = getRandomArbitrary(gasRatio[gas]/2, gasRatio[gas]);
+            total += self[gas];
+        } else {
+            equalSplit.push(gas);
+        }
+    });
+    let remain = 1-total;
+    equalSplit.forEach(function(gas, idx) {
+        self[gas] = remain/equalSplit.length;
+    });
+}
+
+function Core(metallic = false, rocky = false, molten) {
+    if (!metallic && !rocky || metallic && rocky || metallic == undefined || rocky == undefined){
+        this.metallic = Boolean(Math.round(Math.random()));
+        this.rocky = !this.metallic;
+    } else {
+        this.metallic = metallic;
+        this.rocky = rocky;
+    }
+    if (molten == undefined) {
+        this.molten = Math.random();
+    } else {
+        this.molten = getRandomArbitrary(3*molten/4, molten);
+    }
 }
 
 let universe = new Universe();
+
+let planets = {
+  'carbon': {
+    'gasRatio': {'carbon': 0.2, 'oxygen': 0.2, 'co2': 0.4},
+    'core': {'metallic': true},
+  },
+  'gas': {
+    'gasRatio': {'hydrogen': 0.4, 'helium': 0.4},
+    'core': {'molten': 0.8}
+  },
+  'helium': {
+    'gasRatio': {'helium': 0.8, 'co2': 0.1}
+  },
+  'terrestrial': {
+    'gasRatio': {'hydrogen': 0.4, 'helium': 0.4},
+    'core': {'metallic': true},
+    'water': 0.8
+  },
+  'ocean': {
+    'water': 1
+  }
+};
+
 
 function init() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -102,11 +181,13 @@ let sun = new CelestialObject("star", 20, { x: canvas.width / 2, y: canvas.heigh
 
 universe.addObject(sun);
 
-universe.addObject(new CelestialObject("planet", 3, {x: canvas.width / 3, y:canvas.height / 2}, { color: "cyan", parent: sun, w: 0.1 }));
+universe.addObject(new CelestialObject("carbon", 3, {x: canvas.width / 3, y:canvas.height / 2}, { color: "cyan", parent: sun, w: 0.01}));
 
-universe.addObject(new CelestialObject("planet", 2, {x: canvas.width / 4, y:  canvas.height / 2}, { color: "red", parent: sun, w: 0.6 }));
+// universe.addObject(new CelestialObject("planet", 3, {x: canvas.width / 3, y:canvas.height / 2}, { color: "cyan", parent: sun, w: Math.PI/4 }));
 
-universe.addObject(new CelestialObject("planet", 5, {x:canvas.width / 5, y: canvas.height / 2}, { color: "brown", parent: sun, w: 0.2 }));
+// universe.addObject(new CelestialObject("planet", 2, {x: canvas.width / 4, y:  canvas.height / 2}, { color: "red", parent: sun, w: 0.6 }));
+//
+// universe.addObject(new CelestialObject("planet", 5, {x:canvas.width / 5, y: canvas.height / 2}, { color: "brown", parent: sun, w: 0.2 }));
 
 universe.draw(ctx);
 
