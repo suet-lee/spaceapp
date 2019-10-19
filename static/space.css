@@ -4,3 +4,15 @@ body {
 }
 
 body { background-color: #000; }
+
+
+#add_object_form {
+  display: none;
+  position: fixed;
+  top: 5px;
+  left: 5px;
+  border: 1px solid gray;
+  background-color: lightgray;
+  z-index: 100;
+}
+
