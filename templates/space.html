@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <script src="{{ url_for('static', filename='jquery-3.1.1.min.js') }}"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='global.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='space.css') }}">
+  </head>
+
+  <body>
+    <canvas id="myCanvas" width="2080" height="2320"></canvas>
+    <img src="{{ url_for('static', filename='images/polar-bear.svg') }}" id="bear" class="hide">
+    <img src="{{ url_for('static', filename='images/skyscraper2.svg') }}" id="city" class="hide">
+    <img src="{{ url_for('static', filename='images/warehouse.svg') }}" id="factory" class="hide">
+    <img src="" id="city">
+    <img src="" id="factory">
+  </body>
+
+  <!-- <script src="{{ url_for('static', filename='test.js') }}"></script> -->
+
+</html>
