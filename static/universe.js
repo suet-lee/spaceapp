@@ -7,12 +7,18 @@ const ctx = canvas.getContext("2d");
 function UniverseContext(ctx) {
     this.ctx = ctx;
     this.scale = 1;
+    this.speed = 0;
+    this.time = 0;
     this.loc = { x: 0, y: 0 };
     this.translatePos = function(pos) {
         return { x: pos.x * this.scale - this.loc.x, y: pos.y * this.scale - this.loc.y };
     };
     this.scaleLength = function(l) {
         return this.scale * l;
+    };
+    this.passTime = function() {
+        this.time += this.speed;
+        this.time = Math.round(this.time);
     };
 };
 
@@ -24,14 +30,19 @@ function init() {
     ctx.rect(0, 0, canvas.width, canvas.height);
     ctx.fill();
     ctx.fillStyle = "yellow";
-    ctx.fillText("scale " + context.scale, 10, 10);
-    ctx.fillText("location " + context.loc.x + "," + context.loc.y, 10, 30);
+    ctx.fillText("scale", 10, 10);
+    ctx.fillText(context.scale, 50, 10);
+    ctx.fillText("location", 10, 20);
+    ctx.fillText(context.loc.x + "," + context.loc.y, 50, 20);
+    ctx.fillText("speed", 10, 30);
+    ctx.fillText(context.speed, 50, 30);
+    ctx.fillText("time", 10, 40);
+    ctx.fillText(context.time, 50, 40);
 }
 
 function Universe(ctx) {
     this.ctx = ctx
     this.objects = new Array();
-    this.animationRate = 0;
     this.addObject = function (object) {
         this.objects.push(object);
     };
@@ -43,12 +54,13 @@ function Universe(ctx) {
     };
     this.move = function () {
         for (i = 0; i < this.objects.length; i++) {
-            this.objects[i].move(this.animationRate);
+            this.objects[i].move(this.ctx.speed / 9);
         }
         this.draw();
     };
     this.animate = function() {
-        if (this.animationRate != 0) {
+        if (this.ctx.speed != 0) {
+            this.ctx.passTime();
             this.move();
             window.requestAnimationFrame(this.animate.bind(this));
         }
@@ -223,15 +235,6 @@ let planets = {
   }
 };
 
-function init() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = "black";
-    ctx.rect(0, 0, canvas.width, canvas.height);
-    ctx.fill();
-}
-
-init();
-
 let sun = new CelestialObject("star", 20, { x: canvas.width / 2, y: canvas.height / 2 }, {
     color: "yellow",
     temperature: 400,
@@ -239,12 +242,6 @@ let sun = new CelestialObject("star", 20, { x: canvas.width / 2, y: canvas.heigh
 });
 
 universe.addObject(sun);
-
-// universe.addObject(new CelestialObject("planet", 3, {x: canvas.width / 3, y:canvas.height / 2}, { color: "cyan", parent: sun, w: Math.PI/4 }));
-
-// universe.addObject(new CelestialObject("planet", 2, {x: canvas.width / 4, y:  canvas.height / 2}, { color: "red", parent: sun, w: 0.6 }));
-//
-// universe.addObject(new CelestialObject("planet", 5, {x:canvas.width / 5, y: canvas.height / 2}, { color: "brown", parent: sun, w: 0.2 }));
 
 universe.draw(ctx);
 
@@ -295,8 +292,12 @@ canvas.addEventListener("keydown", function (e) {
         universe.move();
     }
     else if (Number(key) != NaN) {
-        universe.animationRate = Number(key) / 9;
-        universe.animate();
+        let oldVal = context.speed;
+        context.speed = Number(key);
+        if (context.speed != 0 && oldVal == 0)
+        {
+            universe.animate();
+        }
     }
 });
 
@@ -325,16 +326,4 @@ $(document).ready(function(e){
         $("#add_object").trigger("reset");
         $("#add_object_form").css("display", "none");
     });
-
 });
-
-/*
-function expand() {
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  ctx.fillStyle("white");
-  ctx.fill();
-  window.requestAnimationFrame(expand);
-}
-
-window.requestAnimationFrame(expand);
-*/
