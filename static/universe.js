@@ -47,12 +47,22 @@ function Universe(ctx) {
         }
         this.draw();
     };
+    this.update = function () {
+        for (i = 0; i < this.objects.length; i++) {
+            var obj = this.objects[i];
+            updateComposition(obj, this.animationRate);
+            if (obj.attribs.parent != undefined) {
+                computeHabitability(obj, this.animationRate);
+            }
+        }
+    }
     this.animate = function() {
         if (this.animationRate != 0) {
             this.move();
+            this.update();
             window.requestAnimationFrame(this.animate.bind(this));
         }
-    }
+     }
 };
 
 function getColor(attribs) {
@@ -86,30 +96,122 @@ function drawObject(ctx, pos, radius, color) {
     ctx.ctx.fill();
 }
 
-function moveObject(object, step) {
-  let w = object.attribs.w*step;
-  let parent = object.attribs.parent;
-  let px = parent.pos.x;
-  let py = parent.pos.y;
+function randomProperty(obj) {
+    var keys = Object.keys(obj)
+    return obj[keys[ keys.length * Math.random() << 0]];
+};
+
+/* Update composition of planet, temperature, atmosphere */
+/* Overtime, methane + water + light => co2 */
+/* h2o => h + o2 */
+/* h, he, and o2 lost */
+/* organisms take in n and co2, add o2 */
+function updateComposition(object, step) {
+  let atmos = object.attribs.atmosphere;
+  let temp = object.attribs.temp;
+  let comp = object.attribs.core;
+  let unit = 0.01*step;
+
+  if ("methane" in atmos && "h2o" in atmos && temp > 0) {
+    atmos.methane -= unit;
+    atmos.h2o -= unit;
+    atmos.co2 += 2*unit;
+  }
+  if ("h2o" in atmos) {
+      atmos.h2o -= 2*unit;
+      atmos.h += unit;
+      atmos.oxygen += unit;
+  }
+  if ("hydrogen" in atmos) {
+      atmos.hydrogen -= unit;
+  }
+  if ("helium" in atmos) {
+      atmos.helium -= unit;
+  }
+  if ("oxygen" in atmos) {
+      atmos.oxygen -= unit;
+  }
+  if (object.life > 0) {
+      atmos.nitrogen -= object.life*unit;
+      atmos.co2 -= object.life*unit;
+      atmos.oxygen += object.life*unit;
+  }
+
+  var total = 0;
+  var count = 0;
+  for (var atm in atmos) {
+      if (atm == 'thickness') {
+          continue;
+      }
+      var val = atmos[atm];
+      if (val < 0) {
+          atmos[atm] = 0;
+      }
+      total += atmos[atm];
+      count += 1;
+  }
+
+  var remain = (1-total)/count;
+  if (remain > 0) {
+      for (var atm in atmos) {
+          if (atm == 'thickness') {
+              continue;
+          }
+          atmos[atm] += remain;
+      }
+  }
+
+  if (atmos.co2 > 0.5) {
+      temp += temp*Math.pow((1+atmos.co2), step);
+  }
+
+  object.attribs.atmosphere = atmos;
+  object.attribs.temp = temp
+}
+
+function computeHabitability(object, step) {
+  if (object.attribs.habitability == undefined) {
+      object.attribs.habitability = 0;
+  }
+  var moltenScale = object.attribs.core.molten - 0.5;
+  if (object.attribs.atmosphere.thickness <= 0 || moltenScale == -0.5) {
+      return 0;
+  }
+
+  let px = object.attribs.parent.pos.x;
+  let py = object.attribs.parent.pos.y;
   let ox = object.pos.x;
   let oy = object.pos.y;
-
   let x_diff = px - ox;
   let y_diff = py - oy;
   let r = Math.sqrt(x_diff*x_diff+y_diff*y_diff);
-  let t = Math.atan2(y_diff, x_diff);
-  let a = w + t;
 
-  object.pos.x = px - r*Math.cos(a);
-  object.pos.y = py - r*Math.sin(a);
+  if (r < 100 || r > 200 || object.size < 5) {
+      object.attribs.habitability += Math.pow(object.attribs.habitability, 1.125);
+  } else {
+      object.attribs.habitability -= Math.pow(object.attribs.habitability, 1.125);
+  }
+}
+
+function computeLife(object, step) {
+    if (object.habitability > 0.7) {
+        object.life = object.life + object.habitability*100;
+        return;
+    }
+    var rollDice = Math.random();
+    if (rollDice > 0.5) {
+        object.life += object.life + rollDice*100;
+    } else {
+        object.life -= rollDice*100;
+    }
 }
 
 function CelestialObject(type, size, pos, attribs) {
-    this.type = type;
+    this.type = type.toLowerCase();
     this.pos = pos;
     this.size = size;
     this.attribs = attribs;
-    
+
     if ("parent" in attribs)
     {
         let parent = attribs.parent;
@@ -125,13 +227,20 @@ function CelestialObject(type, size, pos, attribs) {
 
     this.draw = function (ctx) {
         if ("parent" in this.attribs) {
-            let x_diff = this.pos.x - this.attribs.parent.pos.x;
-            let y_diff = this.pos.y - this.attribs.parent.pos.y;
-            let r = Math.sqrt(x_diff*x_diff+y_diff*y_diff);
-            drawOrbit(ctx, this.attribs.parent.pos, r);
+            drawOrbit(ctx, this.attribs.parent.pos, this.attribs.parent_d);
         }
         drawObject(ctx, this.pos, this.size / 2, getColor(this.attribs));
     };
+
+    if ("parent" in this.attribs) {
+        this.attribs.baseTemp = 1/Math.sqrt(this.attribs.parent_d);
+        if (this.attribs.temp == undefined) {
+            this.attribs.temp = this.attribs.baseTemp;
+        }
+        this.attribs.temp = this.attribs.baseTemp*0.2 + this.attribs.temp*0.8;
+    } else {
+        this.attribs.temp = 10000;
+    }
 
     if (type in planets) {
       let planet = planets[type];
@@ -152,10 +261,11 @@ function CelestialObject(type, size, pos, attribs) {
         if ("parent" in this.attribs && "speed" in this.attribs) {
             this.attribs.parent_angle += this.attribs.speed*animationRate;
             this.pos.x = this.attribs.parent.pos.x -  this.attribs.parent_d*Math.cos(this.attribs.parent_angle);
-            this.pos.y = 
-            this.attribs.parent.pos.y - this.attribs.parent_d*Math.sin(this.attribs.parent_angle);
+            this.pos.y = this.attribs.parent.pos.y - this.attribs.parent_d*Math.sin(this.attribs.parent_angle);
         }
     };
+
+    this.life = 0;
 }
 
 let universe = new Universe(context);
@@ -169,7 +279,7 @@ function getRandomArbitrary(min, max) {
 function Atmosphere(gasRatio) {
     let self = this;
     self.thickness = Math.random();
-    let gases = ['carbon', 'nitrogen', 'oxygen', 'co2', 'methane', 'ozone', 'hydrogen', 'helium'];
+    let gases = ['carbon', 'nitrogen', 'oxygen', 'co2', 'methane', 'ozone', 'hydrogen', 'helium', 'h20'];
     let equalSplit = [];
     let total = 0;
     gases.forEach(function(gas, idx) {
@@ -214,23 +324,21 @@ let planets = {
     'gasRatio': {'helium': 0.8, 'co2': 0.1}
   },
   'terrestrial': {
-    'gasRatio': {'hydrogen': 0.4, 'helium': 0.4},
+    'gasRatio': {'hydrogen': 0.35, 'helium': 0.35, 'h2o': 0.2},
     'core': {'metallic': true},
     'water': 0.8
   },
   'ocean': {
+    'gasRatio': {},
     'water': 1
+    },
+  'star': {
+    'gasRatio': {'hydrogen': 0.4, 'helium': 0.4},
+    'core': {'molten': true, 'rocky': false},
+    'water': 0
   }
 };
 
-function init() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = "black";
-    ctx.rect(0, 0, canvas.width, canvas.height);
-    ctx.fill();
-}
-
-init();
 
 let sun = new CelestialObject("star", 20, { x: canvas.width / 2, y: canvas.height / 2 }, {
     color: "yellow",
@@ -238,15 +346,6 @@ let sun = new CelestialObject("star", 20, { x: canvas.width / 2, y: canvas.heigh
     fusion: 0
 });
 
-universe.addObject(sun);
-
-// universe.addObject(new CelestialObject("planet", 3, {x: canvas.width / 3, y:canvas.height / 2}, { color: "cyan", parent: sun, w: Math.PI/4 }));
-
-// universe.addObject(new CelestialObject("planet", 2, {x: canvas.width / 4, y:  canvas.height / 2}, { color: "red", parent: sun, w: 0.6 }));
-//
-// universe.addObject(new CelestialObject("planet", 5, {x:canvas.width / 5, y: canvas.height / 2}, { color: "brown", parent: sun, w: 0.2 }));
-
-universe.draw(ctx);
 
 canvas.addEventListener("dblclick", function (e) {
     $("#xpos_input").val(e.x);
@@ -254,7 +353,7 @@ canvas.addEventListener("dblclick", function (e) {
     $("#add_object_form").css("display", "block");
 });
 
-canvas.addEventListener("keydown", function (e) {
+window.addEventListener("keydown", function (e) {
     let key = String.fromCharCode(e.keyCode);
     if (key.toLowerCase() == "i") {
         if (context.scale >= 1) {
@@ -273,7 +372,7 @@ canvas.addEventListener("keydown", function (e) {
         else {
             context.scale /= 2;
         }
-        universe.draw();        
+        universe.draw();
     }
     else if (key.toLowerCase() == 'w') {
         context.loc.y -= context.scale * 5;
@@ -295,10 +394,12 @@ canvas.addEventListener("keydown", function (e) {
         universe.move();
     }
     else if (Number(key) != NaN) {
+        let oldVal = universe.animationRate;
         universe.animationRate = Number(key) / 9;
-        universe.animate();
+        if (oldVal == 0 && universe.animationRate != 0)
+                universe.animate();
     }
-});
+}, true);
 
 $(document).ready(function(e){
     $("#create_btn").click(function () {
@@ -328,13 +429,9 @@ $(document).ready(function(e){
 
 });
 
-/*
-function expand() {
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  ctx.fillStyle("white");
-  ctx.fill();
-  window.requestAnimationFrame(expand);
-}
+init();
+universe.addObject(sun);
 
-window.requestAnimationFrame(expand);
-*/
+universe.addObject(new CelestialObject("carbon", 3, {x: canvas.width / 3, y:canvas.height / 2}, { color: "cyan", parent: sun, speed: 1 }));
+
+universe.draw(ctx);
