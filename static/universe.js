@@ -43,6 +43,33 @@ function init() {
     ctx.fillText(context.speed, 50, 30);
     ctx.fillText("time", 10, 40);
     ctx.fillText(context.time, 50, 40);
+
+    if (universe.objects.length > 0) {
+        var obj = universe.objects[universe.objects.length - 1];
+        console.log(obj)
+        ctx.fillText("object:", 10, 60);
+        ctx.fillText(obj.type + ' planet', 50, 60);
+        ctx.fillText("composition:", 10, 70);
+        ctx.fillText("thickness:", 20, 80);
+        ctx.fillText(obj.attribs.atmosphere.thickness, 90, 80);
+        ctx.fillText("carbon:", 20, 90);
+        ctx.fillText(obj.attribs.atmosphere.carbon, 90, 90);
+        ctx.fillText("hydrogen:", 20, 100);
+        ctx.fillText(obj.attribs.atmosphere.hydrogen, 90, 100);
+        ctx.fillText("helium:", 20, 110);
+        ctx.fillText(obj.attribs.atmosphere.helium, 90, 110);
+        ctx.fillText("water:", 20, 120);
+        ctx.fillText(obj.attribs.water, 90, 120);
+        ctx.fillText("oxygen:", 20, 130);
+        ctx.fillText(obj.attribs.atmosphere.oxygen, 90, 130);
+        ctx.fillText("carbon dioxide:", 20, 140);
+        ctx.fillText(obj.attribs.atmosphere.co2, 90, 140);
+        ctx.fillText("temperature:", 10, 155);
+        ctx.fillText(obj.attribs.temp, 80, 155);
+        ctx.fillText("habitability:", 10, 165);
+        ctx.fillText(obj.attribs.temp, 80, 165);
+    // ctx.fillText(obj.attribs.atmosphere, 50, 40);
+    }
 }
 
 function Universe(ctx) {
@@ -477,6 +504,7 @@ $(document).ready(function(e){
         $("#add_object").trigger("reset");
         $("#add_object_form").css("display", "none");
     });
+
 });
 
 init();
