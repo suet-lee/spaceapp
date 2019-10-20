@@ -368,7 +368,7 @@ canvas.addEventListener("dblclick", function (e) {
     $("#add_object_form").css("display", "block");
 });
 
-window.addEventListener("keydown", function (e) {
+canvas.addEventListener("keydown", function (e) {
     let key = String.fromCharCode(e.keyCode);
     if (key.toLowerCase() == "i") {
         if (context.scale >= 1) {
