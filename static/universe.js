@@ -86,6 +86,24 @@ function drawObject(ctx, pos, radius, color) {
     ctx.ctx.fill();
 }
 
+function moveObject(object, step) {
+  let w = object.attribs.w*step;
+  let parent = object.attribs.parent;
+  let px = parent.pos.x;
+  let py = parent.pos.y;
+  let ox = object.pos.x;
+  let oy = object.pos.y;
+
+  let x_diff = px - ox;
+  let y_diff = py - oy;
+  let r = Math.sqrt(x_diff*x_diff+y_diff*y_diff);
+  let t = Math.atan2(y_diff, x_diff);
+  let a = w + t;
+
+  object.pos.x = px - r*Math.cos(a);
+  object.pos.y = py - r*Math.sin(a);
+}
+
 function CelestialObject(type, size, pos, attribs) {
     this.type = type;
     this.pos = pos;
@@ -109,11 +127,27 @@ function CelestialObject(type, size, pos, attribs) {
         if ("parent" in this.attribs) {
             let x_diff = this.pos.x - this.attribs.parent.pos.x;
             let y_diff = this.pos.y - this.attribs.parent.pos.y;
-            let radius = Math.sqrt(x_diff * x_diff + y_diff * y_diff);
-            drawOrbit(ctx, this.attribs.parent.pos, radius);
+            let r = Math.sqrt(x_diff*x_diff+y_diff*y_diff);
+            drawOrbit(ctx, this.attribs.parent.pos, r);
         }
         drawObject(ctx, this.pos, this.size / 2, getColor(this.attribs));
     };
+
+    if (type in planets) {
+      let planet = planets[type];
+      this.attribs.atmosphere = new Atmosphere(planet['gasRatio']);
+      this.attribs.core = new Core(
+        planet.core.metallic,
+        planet.core.rocky,
+        planet.core.molten
+      );
+      if (planet.water == undefined) {
+          this.attribs.water = Math.random();
+      } else {
+          this.attribs.water = planet.water;
+      }
+    }
+
     this.move = function (animationRate) {
         if ("parent" in this.attribs && "speed" in this.attribs) {
             this.attribs.parent_angle += this.attribs.speed*animationRate;
@@ -126,6 +160,76 @@ function CelestialObject(type, size, pos, attribs) {
 
 let universe = new Universe(context);
 
+function getRandomArbitrary(min, max) {
+    return Math.random() * (max - min) + min;
+}
+
+/* gasRatio entries should be between 0 - 1 */
+/* eg. {'carbon': 0.2, 'oxygen': 0.1} */
+function Atmosphere(gasRatio) {
+    let self = this;
+    self.thickness = Math.random();
+    let gases = ['carbon', 'nitrogen', 'oxygen', 'co2', 'methane', 'ozone', 'hydrogen', 'helium'];
+    let equalSplit = [];
+    let total = 0;
+    gases.forEach(function(gas, idx) {
+        if (gas in gasRatio) {
+            self[gas] = getRandomArbitrary(gasRatio[gas]/2, gasRatio[gas]);
+            total += self[gas];
+        } else {
+            equalSplit.push(gas);
+        }
+    });
+    let remain = 1-total;
+    equalSplit.forEach(function(gas, idx) {
+        self[gas] = remain/equalSplit.length;
+    });
+}
+
+function Core(metallic = false, rocky = false, molten) {
+    if (!metallic && !rocky || metallic && rocky || metallic == undefined || rocky == undefined){
+        this.metallic = Boolean(Math.round(Math.random()));
+        this.rocky = !this.metallic;
+    } else {
+        this.metallic = metallic;
+        this.rocky = rocky;
+    }
+    if (molten == undefined) {
+        this.molten = Math.random();
+    } else {
+        this.molten = getRandomArbitrary(3*molten/4, molten);
+    }
+}
+
+let planets = {
+  'carbon': {
+    'gasRatio': {'carbon': 0.2, 'oxygen': 0.2, 'co2': 0.4},
+    'core': {'metallic': true},
+  },
+  'gas': {
+    'gasRatio': {'hydrogen': 0.4, 'helium': 0.4},
+    'core': {'molten': 0.8}
+  },
+  'helium': {
+    'gasRatio': {'helium': 0.8, 'co2': 0.1}
+  },
+  'terrestrial': {
+    'gasRatio': {'hydrogen': 0.4, 'helium': 0.4},
+    'core': {'metallic': true},
+    'water': 0.8
+  },
+  'ocean': {
+    'water': 1
+  }
+};
+
+function init() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = "black";
+    ctx.rect(0, 0, canvas.width, canvas.height);
+    ctx.fill();
+}
+
 init();
 
 let sun = new CelestialObject("star", 20, { x: canvas.width / 2, y: canvas.height / 2 }, {
@@ -135,6 +239,14 @@ let sun = new CelestialObject("star", 20, { x: canvas.width / 2, y: canvas.heigh
 });
 
 universe.addObject(sun);
+
+// universe.addObject(new CelestialObject("planet", 3, {x: canvas.width / 3, y:canvas.height / 2}, { color: "cyan", parent: sun, w: Math.PI/4 }));
+
+// universe.addObject(new CelestialObject("planet", 2, {x: canvas.width / 4, y:  canvas.height / 2}, { color: "red", parent: sun, w: 0.6 }));
+//
+// universe.addObject(new CelestialObject("planet", 5, {x:canvas.width / 5, y: canvas.height / 2}, { color: "brown", parent: sun, w: 0.2 }));
+
+universe.draw(ctx);
 
 canvas.addEventListener("dblclick", function (e) {
     $("#xpos_input").val(e.x);
@@ -216,10 +328,6 @@ $(document).ready(function(e){
 
 });
 
-universe.addObject(new CelestialObject("planet", 3, {x: canvas.width / 3, y:canvas.height / 2}, { color: "cyan", parent: sun, speed: 1 }));
-
-universe.draw(context);
-
 /*
 function expand() {
   ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -230,4 +338,3 @@ function expand() {
 
 window.requestAnimationFrame(expand);
 */
-
