@@ -39316,7 +39316,7 @@
 			var shapes = this.parseShape( json.shapes );
 			var geometries = this.parseGeometries( json.geometries, shapes );
 
-			var images = this.parseImages( json.images, function () {
+			var images = this.parseimages( json.images, function () {
 
 				if ( onLoad !== undefined ) { onLoad( object ); }
 
@@ -39730,7 +39730,7 @@
 
 		},
 
-		parseImages: function ( json, onLoad ) {
+		parseimages: function ( json, onLoad ) {
 
 			var scope = this;
 			var images = {};

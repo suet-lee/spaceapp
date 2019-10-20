@@ -25,7 +25,12 @@ function UniverseContext(ctx) {
 let context = new UniverseContext(ctx);
 
 function init() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    // ctx.clearRect(0, 0, canvas.width, canvas.height);
+    // var background = new Image();
+    // background.onload = function(){
+    //     background.src = "/static/images/starry_sky_texture.png";
+    //     ctx.drawImage(background,0,0);
+    // }
     ctx.fillStyle = "black";
     ctx.rect(0, 0, canvas.width, canvas.height);
     ctx.fill();
@@ -419,7 +424,7 @@ $(document).ready(function(e){
         speed = $("#speed").val();
         size = $("#size").val();
         type = "planet";
-        color = $("#color").val();
+        color = '#fff';
         universe.addObject(new CelestialObject(
             type, Number(size), pos, { color: color, parent: sun, speed: Number(speed) }));
         universe.draw(context);
@@ -431,7 +436,6 @@ $(document).ready(function(e){
         $("#name").val("");
         $("#size").val("");
         $("#speed").val("");
-        $("#color").val("");
     });
 
     $("#cancel_btn").click(function() {

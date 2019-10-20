@@ -32,7 +32,7 @@
       // Sun - TO DO https://alteredqualia.com/three/examples/webgl_shader_fireball.html
       var sunGeometry = new THREE.SphereGeometry(90, 50,50 );
       var sunMaterial = new THREE.MeshPhongMaterial({
-          map: new THREE.ImageUtils.loadTexture("Images/sun_texture.jpg"),
+          map: new THREE.ImageUtils.loadTexture("images/sun_texture.jpg"),
           color: 0xaaaaaa,
           specular: 0x333333,
           shininess: 50
@@ -44,7 +44,7 @@
       // Earth
       var earthGeometry = new THREE.SphereGeometry(5, 50,50 );
       var earthMaterial = new THREE.MeshPhongMaterial({
-        map: new THREE.ImageUtils.loadTexture("Images/earth_texture.jpg"),
+        map: new THREE.ImageUtils.loadTexture("images/earth_texture.jpg"),
         color: 0xaaaaaa,
         specular: 0x333333,
         shininess: 25
@@ -56,7 +56,7 @@
       // Layer of clouds on Earth sphere
       var cloudGeometry = new THREE.SphereGeometry(5.1,  50, 50);
       var cloudMaterial = new THREE.MeshPhongMaterial({
-        map: new THREE.ImageUtils.loadTexture("Images/clouds_texture.jpg"),
+        map: new THREE.ImageUtils.loadTexture("images/clouds_texture.jpg"),
         transparent: true,
         opacity: 0.1
       });
@@ -67,7 +67,7 @@
       // Stars for background
       var starGeometry = new THREE.SphereGeometry(1000, 50, 50);
       var starMaterial = new THREE.MeshPhongMaterial({
-        map: new THREE.ImageUtils.loadTexture("Images/starry_sky_texture.png"),
+        map: new THREE.ImageUtils.loadTexture("images/starry_sky_texture.png"),
         side: THREE.DoubleSide,
         shininess: 0
       });
@@ -76,7 +76,7 @@
 
       var moonGeometry = new THREE.SphereGeometry(3.5, 50,50);
       var moonMaterial = new THREE.MeshPhongMaterial({
-        map: THREE.ImageUtils.loadTexture("Images/moon_texture.jpg")
+        map: THREE.ImageUtils.loadTexture("images/moon_texture.jpg")
       });
       var moon = new THREE.Mesh(moonGeometry, moonMaterial);
       moon.position.set(620,0,0);

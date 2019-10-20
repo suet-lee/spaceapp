@@ -12,7 +12,6 @@
     <script src="{{ url_for('static', filename='universe.js') }}"></script>
     <div id="add_object_form">
       <form name="add_object" id="add_object">
-        <fieldset>
           <div id="pos_input">
             <label id="pos_label">Position</label>
             <input type="number" name="xpos_input" id="xpos_input" size=5 value="" disabled />
@@ -44,7 +43,7 @@
               class="text-input"
             />
           </div>
-          <div id="color_input">
+          <!-- <div id="color_input">
             <label for="color" id="color_label">Color</label>
             <input
               type="color"
@@ -53,7 +52,7 @@
               size="30"
               class="text-input"
             />
-          </div>
+          </div> -->
           <input
             type="button"
             name="create"
@@ -75,9 +74,8 @@
             id="cancel_btn"
             value="Cancel"
           />
-        </fieldset>
       </form>
-    </div>  
+    </div>
   </body>
 
 </html>
