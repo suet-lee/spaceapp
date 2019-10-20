@@ -1,0 +1,111 @@
+<html>
+  <head>
+    <title>EarthX - A NASA Planetarium Game</title>
+    <style>
+      body { margin: 0; background-color: black;}
+      canvas { width: 100%; height: 100% }
+    </style>
+  </head>
+  <body>
+    <script src="three.js"></script>
+    <script src="orbit_controls.js"></script>
+    <script>
+
+      // Use Font: https://threejs.org/docs/#api/en/geometries/TextGeometry
+
+      // Scene and Camera
+      var scene = new THREE.Scene();
+      var camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );
+      var renderer = new THREE.WebGLRenderer({antialias: true});
+          renderer.setSize( window.innerWidth, window.innerHeight );
+          document.body.appendChild( renderer.domElement );
+          camera.position.set(0, 0, 10);
+      var orbit = new THREE.OrbitControls( camera, renderer.domElement )
+
+      // Lights
+      var light = new THREE.AmbientLight( 0x888888 )
+          scene.add( light )
+      var light = new THREE.DirectionalLight( 0xfdfcf0, 1 )
+          light.position.set(10,10,10)
+      scene.add( light )
+      
+      // Sun - TO DO https://alteredqualia.com/three/examples/webgl_shader_fireball.html
+      var sunGeometry = new THREE.SphereGeometry(90, 50,50 );
+      var sunMaterial = new THREE.MeshPhongMaterial({
+          map: new THREE.ImageUtils.loadTexture("Images/sun_texture.jpg"),
+          color: 0xaaaaaa,
+          specular: 0x333333,
+          shininess: 50
+        });
+      
+      var sun = new THREE.Mesh(sunGeometry, sunMaterial);
+      scene.add(sun);
+      
+      // Earth
+      var earthGeometry = new THREE.SphereGeometry(5, 50,50 );
+      var earthMaterial = new THREE.MeshPhongMaterial({
+        map: new THREE.ImageUtils.loadTexture("Images/earth_texture.jpg"),
+        color: 0xaaaaaa,
+        specular: 0x333333,
+        shininess: 25
+      });
+      var earth = new THREE.Mesh(earthGeometry, earthMaterial);
+          earth.position.set(600,0,0);
+      scene.add(earth);
+
+      // Layer of clouds on Earth sphere
+      var cloudGeometry = new THREE.SphereGeometry(5.1,  50, 50);
+      var cloudMaterial = new THREE.MeshPhongMaterial({
+        map: new THREE.ImageUtils.loadTexture("Images/clouds_texture.jpg"),
+        transparent: true,
+        opacity: 0.1
+      });
+      var clouds = new THREE.Mesh(cloudGeometry, cloudMaterial);
+          clouds.position.set(600,0,0)
+      scene.add(clouds);
+
+      // Stars for background
+      var starGeometry = new THREE.SphereGeometry(1000, 50, 50);
+      var starMaterial = new THREE.MeshPhongMaterial({
+        map: new THREE.ImageUtils.loadTexture("Images/starry_sky_texture.png"),
+        side: THREE.DoubleSide,
+        shininess: 0
+      });
+      var starField = new THREE.Mesh(starGeometry, starMaterial);
+      scene.add(starField);
+
+      var moonGeometry = new THREE.SphereGeometry(3.5, 50,50);
+      var moonMaterial = new THREE.MeshPhongMaterial({
+        map: THREE.ImageUtils.loadTexture("Images/moon_texture.jpg")
+      });
+      var moon = new THREE.Mesh(moonGeometry, moonMaterial);
+      moon.position.set(620,0,0);
+      scene.add(moon);
+
+      // Orbital radius, start angle, and angle increment value
+      var r = 75;
+      var theta = 0;
+      var dTheta = 2 * Math.PI / 1000;
+
+// TBD Moon Still Needs to Rotate around earth
+
+      var render = function() {
+        //Rotate the sun, earth and clouds about the y-axis
+        sun.rotation.y -= .0003;
+        earth.rotation.y -= .00025;
+        clouds.rotation.y -= .00050;
+
+        theta += dTheta;
+        earth.position.x = r * 6.4 * Math.cos(theta);
+        earth.position.z = r * 6.4 * Math.sin(theta);
+        moon.position.x = r * 6 * Math.cos(theta);
+        moon.position.z = r * 6 * Math.sin(theta);
+
+        renderer.render(scene, camera);
+        requestAnimationFrame(render);
+      };
+      render();
+
+    </script>
+  </body>
+</html>
