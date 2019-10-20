@@ -59,7 +59,7 @@ function Universe(ctx) {
     };
     this.move = function () {
         for (i = 0; i < this.objects.length; i++) {
-            this.objects[i].move(this.ctx.speed / 9);
+            this.objects[i].move(this.ctx.speed / 9, 0);
         }
         this.draw();
     };
@@ -86,7 +86,9 @@ function getColor(attribs) {
     if ("color" in attribs) {
         return attribs["color"];
     }
-    return "green";
+    else {
+        return "green";
+    }
 }
 
 function drawOrbit(ctx, pos, radius) {
@@ -228,6 +230,7 @@ function CelestialObject(type, size, pos, attribs) {
     this.pos = pos;
     this.size = size;
     this.attribs = attribs;
+    this.display = true;
 
     if ("parent" in attribs)
     {
@@ -243,10 +246,12 @@ function CelestialObject(type, size, pos, attribs) {
     }
 
     this.draw = function (ctx) {
-        if ("parent" in this.attribs) {
-            drawOrbit(ctx, this.attribs.parent.pos, this.attribs.parent_d);
+        if (this.display) {
+            if ("parent" in this.attribs) {
+                drawOrbit(ctx, this.attribs.parent.pos, this.attribs.parent_d);
+            }
+            drawObject(ctx, this.pos, this.size / 2, getColor(this.attribs));
         }
-        drawObject(ctx, this.pos, this.size / 2, getColor(this.attribs));
     };
 
     if ("parent" in this.attribs) {
@@ -256,7 +261,7 @@ function CelestialObject(type, size, pos, attribs) {
         }
         this.attribs.temp = this.attribs.baseTemp*0.2 + this.attribs.temp*0.8;
     } else {
-        this.attribs.temp = 10000;
+        this.attribs.temp = 4700;
     }
 
     if (type in planets) {
@@ -275,10 +280,37 @@ function CelestialObject(type, size, pos, attribs) {
     }
 
     this.move = function (animationRate) {
-        if ("parent" in this.attribs && "speed" in this.attribs) {
+        if ("fusion" in this.attribs)
+        {
+            if (this.attribs.fusion < this.attribs.temp)
+            {
+                this.attribs.gravityUpdate = 0.1;
+            }
+            else if (this.attribs.fusion > this.attribs.temp)
+            {
+                this.attribs.gravityUpdate = -0.1;
+            }
+            else
+            {
+                this.attribs.gravityUpdate = 0;
+            }
+            this.attribs.fusion += 1;
+            this.attribs.temp -= 1;
+        }
+        if (this.display && "parent" in this.attribs && "speed" in this.attribs) {
             this.attribs.parent_angle += this.attribs.speed*animationRate;
-            this.pos.x = this.attribs.parent.pos.x -  this.attribs.parent_d*Math.cos(this.attribs.parent_angle);
-            this.pos.y = this.attribs.parent.pos.y - this.attribs.parent_d*Math.sin(this.attribs.parent_angle);
+            this.attribs.parent_d += this.attribs.parent.attribs.gravityUpdate;
+            if (this.attribs.parent_d * 2 < this.size + this.attribs.parent.size)
+            {
+                this.attribs.parent.size += this.size;
+                this.display = false;
+                this.attribs.parent.move(animationRate);
+            }
+            else
+            {
+                this.pos.x = this.attribs.parent.pos.x -  this.attribs.parent_d*Math.cos(this.attribs.parent_angle);
+                this.pos.y = this.attribs.parent.pos.y - this.attribs.parent_d*Math.sin(this.attribs.parent_angle);
+            }
         }
     };
 
@@ -358,7 +390,6 @@ let planets = {
 
 let sun = new CelestialObject("star", 20, { x: canvas.width / 2, y: canvas.height / 2 }, {
     color: "yellow",
-    temp: 400,
     fusion: 0
 });
 
@@ -415,6 +446,10 @@ canvas.addEventListener("keydown", function (e) {
         {
             universe.animate();
         }
+        else
+        {
+            universe.draw();
+        }
     }
 }, true);
 
@@ -423,7 +458,7 @@ $(document).ready(function(e){
         pos = { x: $("#xpos_input").val(), y: $("#ypos_input").val() };
         speed = $("#speed").val();
         size = $("#size").val();
-        type = "planet";
+        type = "carbon";
         color = '#fff';
         universe.addObject(new CelestialObject(
             type, Number(size), pos, { color: color, parent: sun, speed: Number(speed) }));
