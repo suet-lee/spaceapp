@@ -16,3 +16,5 @@ body { background-color: #000; }
 #info .text p.small { font-size: 10px; letter-spacing: 1px; text-transform: lowercase; }
 
 #info .goto p { margin-top: 40px; color: #fff; font-weight: bold; font-size: 12px; padding: 10px; background-color: rgba(255, 255, 255, 0.4); width: 150px; float: right; letter-spacing: 5px; text-align: center; }
+
+#info audio { position: fixed; bottom: 10px; left: 10px; }
