@@ -27,6 +27,10 @@
         <div class="goto">
             <a href="/universe"><p>START</p></a>
         </div>
+        <audio controls autoplay>
+          <source src="{{ url_for('static', filename='rocket_man.mp3') }}" type="audio/mpeg">
+          Your browser does not support the audio element.
+        </audio>
     </div>
     <div id="earth-img" data-img="{{ url_for('static', filename='images/earth_texture.jpg') }}"></div>
     <div id="clouds-img" data-img="{{ url_for('static', filename='images/clouds_texture.jpg') }}"></div>
