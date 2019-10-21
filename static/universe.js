@@ -46,11 +46,10 @@ function init() {
 
     if (universe.objects.length > 0) {
         var obj = universe.objects[universe.objects.length - 1];
-        console.log(obj)
         ctx.fillText("object:", 10, 60);
         ctx.fillText(obj.type + ' planet', 50, 60);
         ctx.fillText("composition:", 10, 70);
-        ctx.fillText("thickness:", 20, 80);
+        ctx.fillText("atmosphere:", 20, 80);
         ctx.fillText(obj.attribs.atmosphere.thickness, 90, 80);
         ctx.fillText("carbon:", 20, 90);
         ctx.fillText(obj.attribs.atmosphere.carbon, 90, 90);
@@ -86,7 +85,7 @@ function Universe(ctx) {
     };
     this.move = function () {
         for (i = 0; i < this.objects.length; i++) {
-            this.objects[i].move(this.ctx.speed / 9, 0);
+            this.objects[i].move(this.ctx.speed / 30, 0);
         }
         this.draw();
     };
@@ -415,7 +414,7 @@ let planets = {
   }
 };
 
-let sun = new CelestialObject("star", 20, { x: canvas.width / 2, y: canvas.height / 2 }, {
+let sun = new CelestialObject("star", 50, { x: canvas.width / 2, y: canvas.height / 2 }, {
     color: "yellow",
     fusion: 0
 });
@@ -510,6 +509,9 @@ $(document).ready(function(e){
 init();
 universe.addObject(sun);
 
-universe.addObject(new CelestialObject("carbon", 3, {x: canvas.width / 3, y:canvas.height / 2}, { color: "cyan", parent: sun, speed: 1 }));
+let planet = new CelestialObject("carbon", 3, {x: canvas.width / 3, y:canvas.height / 2}, { color: "cyan", parent: sun, speed: 1 });
+
+universe.addObject(planet);
+// universe.addObject(new CelestialObject("terrestrial", 3, {x: canvas.width / 3 + 20, y:canvas.height / 2}, { color: "cyan", parent: planet, speed: 1 }));
 
 universe.draw(ctx);
