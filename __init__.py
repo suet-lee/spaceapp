@@ -9,3 +9,6 @@ def index():
 @app.route('/universe')
 def universe():
     return render_template('space.html')
+
+if __name__ == "__main__":
+    app.run()
