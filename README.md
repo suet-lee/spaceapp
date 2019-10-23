@@ -12,4 +12,9 @@ http://sol.suetlee.com
 
 #### How To Run
 
+- Double click to add a planet
+- Keys [1-9] to start the simulation and change speed
+- Keys [AWSD] to move around
+- Keys [IO] to zoom in and out
+
 [Details of entry](https://2019.spaceappschallenge.org/challenges/planets-near-and-far/build-planet-workshop/teams/earthx-1/project) 
