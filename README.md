@@ -17,4 +17,4 @@ http://sol.suetlee.com
 - Keys [AWSD] to move around
 - Keys [IO] to zoom in and out
 
-[Details of entry](https://2019.spaceappschallenge.org/challenges/planets-near-and-far/build-planet-workshop/teams/earthx-1/project) 
+[Details of entry](https://2019.spaceappschallenge.org/challenges/planets-near-and-far/build-planet-workshop/teams/solx/project) 
