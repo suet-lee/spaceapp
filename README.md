@@ -4,11 +4,11 @@
 *Zero hour nine AM*
 *And I'm gonna be high as a kite by then* 
 
-### Team EarthX
+### Team SolX
 
 Our space app is built for educational purposes. What we have created is...
 
-Find our video demo [here]()
+http://sol.suetlee.com
 
 #### How To Run
 
