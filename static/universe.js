@@ -515,3 +515,11 @@ universe.addObject(planet);
 // universe.addObject(new CelestialObject("terrestrial", 3, {x: canvas.width / 3 + 20, y:canvas.height / 2}, { color: "cyan", parent: planet, speed: 1 }));
 
 universe.draw(ctx);
+
+$('body').not('#help').click(function() {
+    $('#instructions').hide();
+});
+
+// $('#help').click(function() {
+//     $('#instructions').hide();
+// });

@@ -15,3 +15,9 @@
 #add_object_form #pos_input input { width: 62px; display: inline; margin-left: 5px; }
 #add_object_form label { width: 50px; text-transform: uppercase; letter-spacing: 1px; font-size: 12px; margin-right: 7px; }
 #add_object_form input[type=button] { border: none; background-color: rgba(255, 255, 255, 0.4); margin-left: 10px; padding: 5px; letter-spacing: 0px; font-size: 11px; text-transform: uppercase; margin-left: 5px; margin-top: 10px; }
+
+#instructions { position: absolute; background-color: rgba(255, 254, 194, 0.97); top: 50%; left: 50%; width: 400px; margin-left: -200px; margin-top: -180px; z-index: 10; border-radius: 15px; padding: 20px; }
+#instructions table { margin: auto;  width: 80%; letter-spacing: 1px; font-size: 12px; font-weight: bold; }
+#instructions thead td { text-transform: uppercase; }
+#instructions td { width: 50%; padding: 10px; }
+#instructions td:nth-child(2) { text-align: right; }

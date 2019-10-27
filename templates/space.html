@@ -10,6 +10,47 @@
   <body>
     <canvas id="draw" tabindex="1" width="2080" height="2320"></canvas>
     <script src="{{ url_for('static', filename='universe.js') }}"></script>
+
+    <div id="instructions">
+        <table>
+            <thead>
+                <td>Mouse</td>
+                <td></td>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>double click</td>
+                    <td>add a planet</td>
+                </tr>
+            </tbody>
+        </table>
+        <br>
+        <table>
+            <thead>
+                <td>Keyboard</td>
+                <td></td>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>[1] - [9]</td>
+                    <td>set speed</td>
+                </tr>
+                <tr>
+                    <td>[a] [w] [s] [d]</td>
+                    <td>move view</td>
+                </tr>
+                <tr>
+                    <td>[i] [o]</td>
+                    <td>zoom</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div id="help">
+
+    </div>
+
     <div id="add_object_form">
       <form name="add_object" id="add_object">
           <div id="pos_input">
@@ -43,16 +84,6 @@
               class="text-input"
             />
           </div>
-          <!-- <div id="color_input">
-            <label for="color" id="color_label">Color</label>
-            <input
-              type="color"
-              name="color"
-              id="color"
-              size="30"
-              class="text-input"
-            />
-          </div> -->
           <input
             type="button"
             name="create"
